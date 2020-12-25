@@ -41,7 +41,7 @@ func StartPrysm(ctx context.Context, arguments string, g *errgroup.Group) error 
 	eth1Url := "https://eth-goerli-01.dccn.ankr.com"
 	network := "pyrmont"
 	cmd := exec.Command(
-		"/app/prysm.sh",
+		"./app/prysm.sh",
 		"beacon-chain",
 		"--config-file=/app/prysm-config.yaml",
 		"--datadir=/app/data",
