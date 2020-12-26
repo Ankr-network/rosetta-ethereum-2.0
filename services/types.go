@@ -16,4 +16,15 @@ type Client interface {
 		[]*types.Peer,
 		error,
 	)
+
+	Block(
+		context.Context,
+		*types.PartialBlockIdentifier,
+	) (*types.Block, error)
+
+	Balance(
+		context.Context,
+		*types.AccountIdentifier,
+		*types.PartialBlockIdentifier,
+	) (*types.AccountBalanceResponse, error)
 }

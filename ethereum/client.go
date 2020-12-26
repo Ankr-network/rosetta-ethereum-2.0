@@ -3,6 +3,7 @@ package ethereum
 import (
 	"context"
 	"encoding/hex"
+	"errors"
 	"log"
 	"time"
 
@@ -154,6 +155,91 @@ func (ec *Client) genesis(ctx context.Context) (*pb.Genesis, error) {
 	return genesis, nil
 }
 
+func (ec *Client) Block(
+	ctx context.Context,
+	blockIdentifier *RosettaTypes.PartialBlockIdentifier,
+) (*RosettaTypes.Block, error) {
+	if blockIdentifier != nil {
+		if blockIdentifier.Hash != nil {
+			return ec.blockByHash(ctx, *blockIdentifier.Hash)
+		}
+
+		if blockIdentifier.Index != nil {
+			return ec.blockByIndex(ctx, *blockIdentifier.Index)
+		}
+	}
+
+	return nil, errors.New("Query must be hash or index")
+}
+
+func (ec *Client) blockByIndex(ctx context.Context, block int64) (*RosettaTypes.Block, error) {
+	var slot *pb.ListBlocksRequest_Slot
+	slot.Slot = uint64(block)
+	var in *pb.ListBlocksRequest
+	in.QueryFilter = slot
+
+	res, err := ec.beaconChainClient.ListBlocks(ctx, in)
+	if err != nil {
+		log.Fatalf("could not get block by slot index: %s", err)
+	}
+	rosettaBlock, err := ec.parseBeaconBlock(ctx, res)
+	if err != nil {
+		return nil, err
+	}
+	return rosettaBlock, nil
+}
+
+func (ec *Client) blockByHash(ctx context.Context, hash string) (*RosettaTypes.Block, error) {
+	var root *pb.ListBlocksRequest_Root
+	root.Root = []byte(hash)
+	var in *pb.ListBlocksRequest
+	in.QueryFilter = root
+
+	res, err := ec.beaconChainClient.ListBlocks(ctx, in)
+	if err != nil {
+		log.Fatalf("could not get block by root hash: %s", err)
+	}
+	rosettaBlock, err := ec.parseBeaconBlock(ctx, res)
+	if err != nil {
+		return nil, err
+	}
+	return rosettaBlock, nil
+}
+
+func (ec *Client) parseBeaconBlock(ctx context.Context, block *pb.ListBlocksResponse) (*RosettaTypes.Block, error) {
+	if len(block.BlockContainers) < 0 {
+		return nil, nil // !TODO add error output
+	}
+
+	var parentBlockIdentifier *RosettaTypes.BlockIdentifier
+	b := block.BlockContainers[0]
+	if b.Block.Block.Slot != 0 {
+		parentBlockIdentifier = &RosettaTypes.BlockIdentifier{
+			Index: int64(b.Block.Block.Slot - 1),
+			Hash:  string(b.Block.Block.ParentRoot),
+		}
+	}
+
+	timestamp, err := ec.getBlockTimestamp(ctx, int64(b.Block.Block.Slot))
+	if err != nil {
+		return nil, err
+	}
+	return &RosettaTypes.Block{
+		BlockIdentifier: &RosettaTypes.BlockIdentifier{
+			Index: int64(b.Block.Block.Slot),
+			Hash:  string(b.BlockRoot),
+		},
+		ParentBlockIdentifier: parentBlockIdentifier,
+		//The timestamp in milliseconds because some blockchains produce block more often than once a second.
+		Timestamp:    timestamp * 1000,
+		Transactions: nil,
+		Metadata: map[string]interface{}{
+			"epoch": int64(b.Block.Block.Slot) / 32,
+			// "attestations": b.Block.Block.Body,
+		},
+	}, nil
+}
+
 func getHighestBlock(genesisTimeSec int64) uint64 {
 	now := timeutils.Now().Unix()
 	genesis := int64(genesisTimeSec)
@@ -161,6 +247,17 @@ func getHighestBlock(genesisTimeSec int64) uint64 {
 		return 0
 	}
 	return uint64(now-genesis) / secondsPerSlotCreation
+}
+
+func (ec *Client) getBlockTimestamp(ctx context.Context, blockNumber int64) (int64, error) {
+	genesis, err := ec.genesis(ctx)
+	if err != nil {
+		return 0, err
+	}
+	genesisTime := genesis.GetGenesisTime()
+
+	return (12 * blockNumber) + int64(genesisTime.GetSeconds()), nil
+
 }
 
 func convertTime(time uint64) int64 {
