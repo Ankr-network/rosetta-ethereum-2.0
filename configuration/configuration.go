@@ -50,7 +50,7 @@ const (
 	// BeaconRPCEnv is an optional environment variable
 	// used to connect rosetta-ethereum to an already
 	// running beacon node.
-	BeaconRPCEnv = "BeaconRPC"
+	BeaconRPCEnv = "BEACON_RPC"
 
 	// DefaultRPCURL is the default URL for
 	// a running beacon node. This is used
