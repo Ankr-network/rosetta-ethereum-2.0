@@ -5,7 +5,7 @@ RUN mkdir -p /app \
   && chown -R nobody:nogroup /app
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y curl make gcc g++ git
+RUN apt-get update && apt-get install -y curl wget make gcc g++ git
 ENV GOLANG_VERSION 1.15.5
 ENV GOLANG_DOWNLOAD_SHA256 9a58494e8da722c3aef248c9227b0e9c528c7318309827780f16220998180a0d
 ENV GOLANG_DOWNLOAD_URL https://golang.org/dl/go$GOLANG_VERSION.linux-amd64.tar.gz
@@ -23,7 +23,7 @@ RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
 FROM golang-builder as beacon-builder
 
 # VERSION: beacon v1.0.5
-RUN curl https://raw.githubusercontent.com/prysmaticlabs/prysm/master/prysm.sh --output prysm.sh && chmod +x prysm.sh
+RUN wget --output-document beacon-chain https://github.com/prysmaticlabs/prysm/releases/download/v1.0.5/beacon-chain-v1.0.5-linux-amd64
 
 # Compile rosetta-ethereum
 FROM golang-builder as rosetta-builder
@@ -41,8 +41,6 @@ RUN mv src/rosetta-ethereum-2.0 /app/rosetta-ethereum-2.0 \
 ## Build Final Image
 FROM ubuntu:18.04
 
-RUN apt-get update && apt-get install -y curl
-
 RUN mkdir -p /app \
   && chown -R nobody:nogroup /app \
   && mkdir -p /data \
@@ -51,7 +49,7 @@ RUN mkdir -p /app \
 WORKDIR /app
 
 # Copy binary from beacon-builder
-COPY --from=beacon-builder /app/prysm.sh /app/prysm.sh
+COPY --from=beacon-builder /app/beacon-chain /app/beacon-chain
 
 # Copy binary from rosetta-builder
 COPY --from=rosetta-builder /app/ethereum /app/ethereum
@@ -59,7 +57,5 @@ COPY --from=rosetta-builder /app/rosetta-ethereum-2.0 /app/rosetta-ethereum-2.0
 
 # Set permissions for everything added to /app
 RUN chmod -R 755 /app/*
-
-ENV PRYSM_ALLOW_UNVERIFIED_BINARIES 1
 
 CMD ["/app/rosetta-ethereum-2.0", "run"]
