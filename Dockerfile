@@ -19,11 +19,11 @@ ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
 
-# Get beacon-chain
-FROM golang-builder as beacon-chain-builder
+# Get beacon
+FROM golang-builder as beacon-builder
 
-# VERSION: beacon-chain v1.0.5
-RUN wget --output-document beacon-chain https://github.com/prysmaticlabs/prysm/releases/download/v1.0.5/beacon-chain-v1.0.5-linux-amd64 \
+# VERSION: beacon v1.0.5
+RUN wget --output-document beacon-chain https://github.com/prysmaticlabs/prysm/releases/download/v1.0.5/beacon-v1.0.5-linux-amd64 \
   && mv beacon-chain /app/beacon-chain
 
 # Compile rosetta-ethereum
@@ -49,8 +49,8 @@ RUN mkdir -p /app \
 
 WORKDIR /app
 
-# Copy binary from beacon-chain-builder
-COPY --from=beacon-chain-builder /app/beacon-chain /app/beacon-chain
+# Copy binary from beacon-builder
+COPY --from=beacon-builder /app/beacon-chain /app/beacon-chain
 
 # Copy binary from rosetta-builder
 COPY --from=rosetta-builder /app/ethereum /app/ethereum
