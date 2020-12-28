@@ -41,6 +41,8 @@ RUN mv src/rosetta-ethereum-2.0 /app/rosetta-ethereum-2.0 \
 ## Build Final Image
 FROM ubuntu:18.04
 
+RUN apt-get update && apt-get install ca-certificates -y
+
 RUN mkdir -p /app \
   && chown -R nobody:nogroup /app \
   && mkdir -p /data \
