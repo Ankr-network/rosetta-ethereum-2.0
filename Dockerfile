@@ -60,4 +60,6 @@ COPY --from=rosetta-builder /app/rosetta-ethereum-2.0 /app/rosetta-ethereum-2.0
 # Set permissions for everything added to /app
 RUN chmod -R 755 /app/*
 
+ENV PRYSM_ALLOW_UNVERIFIED_BINARIES 1
+
 CMD ["/app/rosetta-ethereum-2.0", "run"]
