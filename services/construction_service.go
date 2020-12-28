@@ -3,8 +3,6 @@ package services
 import (
 	"context"
 
-	"rosetta-ethereum-2.0/configuration"
-
 	"github.com/coinbase/rosetta-sdk-go/types"
 )
 
@@ -12,10 +10,7 @@ import (
 type ConstructionAPIService struct{}
 
 // NewConstructionAPIService creates a new instance of a ConstructionAPIService.
-func NewConstructionAPIService(
-	cfg *configuration.Configuration,
-	client Client,
-) *ConstructionAPIService {
+func NewConstructionAPIService() *ConstructionAPIService {
 	return &ConstructionAPIService{}
 }
 

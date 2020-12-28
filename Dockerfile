@@ -1,17 +1,3 @@
-# Copyright 2020 Coinbase, Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 # Compile golang 
 FROM ubuntu:18.04 as golang-builder
 
@@ -19,7 +5,7 @@ RUN mkdir -p /app \
   && chown -R nobody:nogroup /app
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y curl make gcc g++ git
+RUN apt-get update && apt-get install -y curl wget make gcc g++ git
 ENV GOLANG_VERSION 1.15.5
 ENV GOLANG_DOWNLOAD_SHA256 9a58494e8da722c3aef248c9227b0e9c528c7318309827780f16220998180a0d
 ENV GOLANG_DOWNLOAD_URL https://golang.org/dl/go$GOLANG_VERSION.linux-amd64.tar.gz
@@ -33,19 +19,12 @@ ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
 
-# Compile geth
-FROM golang-builder as geth-builder
+# Get beacon-chain
+FROM golang-builder as beacon-chain-builder
 
-# VERSION: go-ethereum v.1.9.24
-RUN git clone https://github.com/ethereum/go-ethereum \
-  && cd go-ethereum \
-  && git checkout cc05b050df5f88e80bb26aaf6d2f339c49c2d702
-
-RUN cd go-ethereum \
-  && make geth
-
-RUN mv go-ethereum/build/bin/geth /app/geth \
-  && rm -rf go-ethereum
+# VERSION: beacon-chain v1.0.5
+RUN wget --output-document beacon-chain https://github.com/prysmaticlabs/prysm/releases/download/v1.0.5/beacon-chain-v1.0.5-linux-amd64 \
+  && mv beacon-chain /app/beacon-chain
 
 # Compile rosetta-ethereum
 FROM golang-builder as rosetta-builder
@@ -55,10 +34,9 @@ COPY . src
 RUN cd src \
   && go build
 
-RUN mv src/rosetta-ethereum /app/rosetta-ethereum \
+RUN mv src/rosetta-ethereum-2.0 /app/rosetta-ethereum-2.0 \
   && mkdir /app/ethereum \
-  && mv src/ethereum/call_tracer.js /app/ethereum/call_tracer.js \
-  && mv src/ethereum/geth.toml /app/ethereum/geth.toml \
+  && mv src/ethereum/prysm-config.yaml /app/ethereum/prysm-config.yaml \
   && rm -rf src 
 
 ## Build Final Image
@@ -71,14 +49,14 @@ RUN mkdir -p /app \
 
 WORKDIR /app
 
-# Copy binary from geth-builder
-COPY --from=geth-builder /app/geth /app/geth
+# Copy binary from beacon-chain-builder
+COPY --from=beacon-chain-builder /app/beacon-chain /app/beacon-chain
 
 # Copy binary from rosetta-builder
 COPY --from=rosetta-builder /app/ethereum /app/ethereum
-COPY --from=rosetta-builder /app/rosetta-ethereum /app/rosetta-ethereum
+COPY --from=rosetta-builder /app/rosetta-ethereum-2.0 /app/rosetta-ethereum-2.0
 
 # Set permissions for everything added to /app
 RUN chmod -R 755 /app/*
 
-CMD ["/app/rosetta-ethereum", "run"]
+CMD ["/app/rosetta-ethereum-2.0", "run"]

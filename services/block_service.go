@@ -36,7 +36,7 @@ func (s *BlockAPIService) Block(
 
 	block, err := s.client.Block(ctx, request.BlockIdentifier)
 	if err != nil {
-		return nil, wrapErr(ErrGeth, err)
+		return nil, wrapErr(ErrBeacon, err)
 	}
 
 	return &types.BlockResponse{

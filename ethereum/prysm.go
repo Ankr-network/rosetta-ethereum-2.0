@@ -37,16 +37,10 @@ func logPipe(pipe io.ReadCloser, identifier string) error {
 // StartPrysm starts a prysm daemon in another goroutine
 // and logs the results to the console.
 func StartPrysm(ctx context.Context, arguments string, g *errgroup.Group) error {
-	// parsedArgs := strings.Split(arguments, " ")
-	eth1Url := "https://eth-goerli-01.dccn.ankr.com"
-	network := "pyrmont"
+	parsedArgs := strings.Split(arguments, " ")
 	cmd := exec.Command(
-		"./app/prysm.sh",
-		"beacon-chain",
-		"--config-file=/app/prysm-config.yaml",
-		"--datadir=/app/data",
-		"--http-web3provider="+eth1Url,
-		"--"+network)
+		"/app/beacon-chain",
+		parsedArgs...)
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {

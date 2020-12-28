@@ -49,11 +49,11 @@ const (
 
 	// BeaconRPCEnv is an optional environment variable
 	// used to connect rosetta-ethereum to an already
-	// running geth node.
+	// running beacon node.
 	BeaconRPCEnv = "BeaconRPC"
 
-	// DefaultGethURL is the default URL for
-	// a running geth node. This is used
+	// DefaultRPCURL is the default URL for
+	// a running beacon node. This is used
 	// when BeaconRPCEnv is not populated.
 	DefaultRPCURL = "http://localhost:4000"
 
@@ -96,11 +96,13 @@ func LoadConfiguration() (*Configuration, error) {
 			Blockchain: ethereum.Blockchain,
 			Network:    ethereum.MainnetNetwork,
 		}
+		config.PrysmArguments = ethereum.MainnetPrysmArguments
 	case Testnet:
 		config.Network = &types.NetworkIdentifier{
 			Blockchain: ethereum.Blockchain,
 			Network:    ethereum.TestnetNetwork,
 		}
+		config.PrysmArguments = ethereum.TestnetPrysmArguments
 	case "":
 		return nil, errors.New("NETWORK must be populated")
 	default:

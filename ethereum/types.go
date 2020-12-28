@@ -54,12 +54,20 @@ const (
 	CoinbaseOpType = "COINBASE"
 
 	// MainnetPrysmArguments are the arguments to start a mainnet Prysm instance.
-	MainnetPrysmArguments = `--config-file=/app/prysm-config.yaml --datadir=/data`
+	MainnetPrysmArguments = `--config-file=/app/ethereum/prysm-config.yaml --datadir=/data`
 )
 
 var (
 	// TestnetPrysmArguments are the arguments to start a ropsten Prysm instance.
 	TestnetPrysmArguments = fmt.Sprintf("%s --pyrmont", MainnetPrysmArguments)
+
+	// MainnetGenesisBlockIdentifier is the *types.BlockIdentifier
+	// of the mainnet genesis block.
+	MainnetGenesisBlockIdentifier = &types.BlockIdentifier{}
+
+	// TestnetGenesisBlockIdentifier is the *types.BlockIdentifier
+	// of the testnet genesis block.
+	TestnetGenesisBlockIdentifier = &types.BlockIdentifier{}
 
 	// Currency is the *types.Currency for all
 	// Ethereum networks.

@@ -10,7 +10,7 @@ var (
 	Errors = []*types.Error{
 		ErrUnimplemented,
 		ErrUnavailableOffline,
-		ErrGeth,
+		ErrBeacon,
 		ErrUnableToDecompressPubkey,
 		ErrUnclearIntent,
 		ErrUnableToParseIntermediateResult,
@@ -21,7 +21,7 @@ var (
 		ErrCallMethodInvalid,
 		ErrBlockOrphaned,
 		ErrInvalidAddress,
-		ErrGethNotReady,
+		ErrBeaconNotReady,
 	}
 
 	// ErrUnimplemented is returned when an endpoint
@@ -38,9 +38,9 @@ var (
 		Message: "Endpoint unavailable offline",
 	}
 
-	// ErrGeth is returned when geth
+	// ErrBeacon is returned when geth
 	// errors on a request.
-	ErrGeth = &types.Error{
+	ErrBeacon = &types.Error{
 		Code:    2, //nolint
 		Message: "geth error",
 	}
@@ -123,9 +123,9 @@ var (
 		Message: "Invalid address",
 	}
 
-	// ErrGethNotReady is returned when geth
+	// ErrBeaconNotReady is returned when geth
 	// cannot yet serve any queries.
-	ErrGethNotReady = &types.Error{
+	ErrBeaconNotReady = &types.Error{
 		Code:      13, //nolint
 		Message:   "geth not ready",
 		Retriable: true,

@@ -1,0 +1,111 @@
+accept-terms-of-use: true
+rpc-host: localhost
+rpc-port: 4000
+monitoring-host: localhost
+monitoring-port: 8000
+grpc-gateway-host: localhost
+grpc-gateway-port: 3500
+disable-monitoring: true
+
+# cmd OPTIONS:
+# accept-terms-of-use          Accept Terms and Conditions (for non-interactive environments) (default: false)
+# bootstrap-node value         The address of bootstrap node. Beacon node will connect for peer discovery via DHT.  Multiple nodes can be passed by using the flag multiple times but not comma-separated. You can also pass YAML files containing multiple nodes. (default: "enr:-Ku4QMKVC_MowDsmEa20d5uGjrChI0h8_KsKXDmgVQbIbngZV0idV6_RL7fEtZGo-kTNZ5o7_EJI_vCPJ6scrhwX0Z4Bh2F0dG5ldHOIAAAAAAAAAACEZXRoMpD1pf1CAAAAAP__________gmlkgnY0gmlwhBLf22SJc2VjcDI1NmsxoQJxCnE6v_x2ekgY_uoE1rtwzvGy40mq9eD66XfHPBWgIIN1ZHCCD6A", "enr:-Ku4QOnVSyvzS3VbF87J8MubaRuTyfPi6B67XQg6-5eAV_uILAhn9geTTQmfqDIOcIeAxWHUUajQp6lYniAXPWncp6UBh2F0dG5ldHOIAAAAAAAAAACEZXRoMpAYrkzLAAAAAf__________gmlkgnY0gmlwhBLf22SJc2VjcDI1NmsxoQKekYKqUtwbaJKKCct_srE5-g7tBUm68mj_jpeSb7CCqYN1ZHCCC7g")
+# chain-config-file value      The path to a YAML file with chain config values
+# clear-db                     Prompt for clearing any previously stored data at the data directory (default: false)
+# config-file value            The filepath to a yaml file with flag values
+# datadir value                Data directory for the databases and keystore (default: "/root/.eth2")
+# disable-monitoring           Disable monitoring service. (default: false)
+# e2e-config                   Use the E2E testing config, only for use within end-to-end testing. (default: false)
+# enable-tracing               Enable request tracing. (default: false)
+# force-clear-db               Clear any previously stored data at the data directory (default: false)
+# grpc-max-msg-size value      Integer to define max recieve message call size (default: 4194304 (for 4MB)) (default: 4194304)
+# max-goroutines value         Specifies the upper limit of goroutines running before a status check fails (default: 5000)
+# minimal-config               Use minimal config with parameters as defined in the spec. (default: false)
+# monitoring-host value        Host used for listening and responding metrics for prometheus. (default: "127.0.0.1")
+# monitoring-port value        Port used to listening and respond metrics for prometheus. (default: 8080)
+# no-discovery                 Enable only local network p2p and do not connect to cloud bootstrap nodes. (default: false)
+# p2p-tcp-port value           The port used by libp2p. (default: 13000)
+# p2p-udp-port value           The port used by discv5. (default: 12000)
+# relay-node value             The address of relay node. The beacon node will connect to the relay node and advertise their address via the relay node to other peers
+# rpc-max-page-size value      Max number of items returned per page in RPC responses for paginated endpoints. (default: 0)
+# trace-sample-fraction value  Indicate what fraction of p2p messages are sampled for tracing. (default: 0.2)
+# tracing-endpoint value       Tracing endpoint defines where beacon chain traces are exposed to Jaeger. (default: "http://127.0.0.1:14268/api/traces")
+# tracing-process-name value   The name to apply to tracing tag "process_name"
+# verbosity value              Logging verbosity (trace, debug, info=default, warn, error, fatal, panic) (default: "info")
+
+# debug OPTIONS:
+# cpuprofile value      Write CPU profile to the given file
+# memprofilerate value  Turn on memory profiling with the given rate (default: 524288)
+# pprof                 Enable the pprof HTTP server (default: false)
+# pprofaddr value       pprof HTTP server listening interface (default: "127.0.0.1")
+# pprofport value       pprof HTTP server listening port (default: 6060)
+# trace value           Write execution trace to the given file
+
+# beacon-chain OPTIONS:
+# block-batch-limit value                               The amount of blocks the local peer is bounded to request and respond to in a batch. (default: 64)
+# block-batch-limit-burst-factor value                  The factor by which block batch limit may increase on burst. (default: 10)
+# chain-id value                                        Sets the chain id of the beacon chain (default: 0)
+# contract-deployment-block value                       The eth1 block in which the deposit contract was deployed. (default: 2844925)
+# deposit-contract value                                Deposit contract address. Beacon chain node will listen logs coming from the deposit contract to determine when validator is eligible to participate. (default: "0x07b39F4fDE4A38bACe212b546dAc87C58DfE3fDC")
+# disable-discv5                                        Does not run the discoveryV5 dht. (default: false)
+# disable-grpc-gateway                                  Disable the gRPC gateway for JSON-HTTP requests (default: false)
+# disable-sync                                          Starts the beacon node without entering initial sync and instead exits to regular sync immediately. (default: false)
+# enable-debug-rpc-endpoints                            Enables the debug rpc service, containing utility endpoints such as /eth/v1alpha1/beacon/state. (default: false)
+# gc-percent value                                      The percentage of freshly allocated data to live data on which the gc will be run again. (default: 100)
+# grpc-gateway-corsdomain value                         Comma separated list of domains from which to accept cross origin requests (browser enforced). This flag has no effect if not used with grpc-gateway-port. (default: "http://localhost:4242,http://127.0.0.1:4242,http://localhost:4200")
+# grpc-gateway-host value                               The host on which the gateway server runs on (default: "127.0.0.1")
+# grpc-gateway-port value                               Enable gRPC gateway for JSON requests (default: 3500)
+# head-sync                                             Starts the beacon node with the previously saved head state instead of finalized state. (default: false)
+# historical-slasher-node                               Enables required flags for serving historical data to a slasher client. Results in additional storage usage (default: false)
+# http-web3provider value                               A mainchain web3 provider string http endpoint
+# interop-eth1data-votes                                Enable mocking of eth1 data votes for proposers to package into blocks (default: false)
+# interop-genesis-state value                           The genesis state file (.SSZ) to load from
+# network-id value                                      Sets the network id of the beacon chain. (default: 0)
+# rpc-host value                                        Host on which the RPC server should listen (default: "127.0.0.1")
+# rpc-port value                                        RPC port exposed by a beacon node (default: 4000)
+# slots-per-archive-point value                         The slot durations of when an archived state gets saved in the DB. (default: 2048)
+# slots-per-archive-point value                         The slot durations of when an archived state gets saved in the DB. (default: 2048)
+# tls-cert value                                        Certificate for secure gRPC. Pass this and the tls-key flag in order to use gRPC securely.
+# tls-key value                                         Key for secure gRPC. Pass this and the tls-cert flag in order to use gRPC securely.
+# weak-subjectivity-checkpoint block_root:epoch_number  Input in block_root:epoch_number format. This guarantee that syncing leads to the given Weak Subjectivity Checkpoint being in the canonical chain. If such a sync is not possible, the node will treat it a critical and irrecoverable failure
+# p2p OPTIONS:
+# enable-upnp           Enable the service (Beacon chain or Validator) to use UPnP when possible. (default: false)
+# min-sync-peers value  The required number of valid peers to connect with before syncing. (default: 3)
+# p2p-allowlist value   The CIDR subnet for allowing only certain peer connections. Example: 192.168.0.0/16 would permit connections to peers on your local network only. The default is to accept all connections.
+# p2p-denylist value    The CIDR subnets for denying certainy peer connections. Example: 192.168.0.0/16 would deny connections from peers on your local network only. The default is to accept all connections.
+# p2p-host-dns value    The DNS address advertised by libp2p. This may be used to advertise an external DNS.
+# p2p-host-ip value     The IP address advertised by libp2p. This may be used to advertise an external IP.
+# p2p-local-ip value    The local ip address to listen for incoming data.
+# p2p-max-peers value   The max number of p2p peers to maintain. (default: 30)
+# p2p-metadata value    The file containing the metadata to communicate with other peers.
+# p2p-priv-key value    The file containing the private key to use in communications with other peers.
+# peer value            Connect with this peer. This flag may be used multiple times.
+
+# log OPTIONS:
+# log-file value    Specify log file name, relative or absolute
+# log-format value  Specify log formatting. Supports: text, json, fluentd. (default: "text")
+
+# features OPTIONS:
+# altona                                   This defines the flag through which we can run on the Altona Multiclient Testnet (default: false)
+# attestation-aggregation-strategy value   Which strategy to use when aggregating attestations, one of: naive, max_cover. (default: "max_cover")
+# blst                                     Enable new BLS library, blst, from Supranational (default: false)
+# dev                                      Enable experimental features still in development. These features may not be stable. (default: false)
+# disable-grpc-connection-logging          Disables displaying logs for newly connected grpc clients (default: false)
+# disable-pruning-deposit-proofs           Disables pruning deposit proofs when they are no longer needed.This will probably significantly increase the amount of memory taken up by deposits. (default: false)
+# enable-att-broadcast-discovery-attempts  Enable experimental attestation subnet discovery before broadcasting. (default: false)
+# enable-db-backup-webhook                 Serve HTTP handler to initiate database backups. The handler is served on the monitoring port at path /db/backup. (default: false)
+# enable-eth1-data-majority-vote           When enabled, voting on eth1 data will use the Voting With The Majority algorithm. (default: false)
+# enable-peer-scorer                       Enable experimental P2P peer scorer (default: false)
+# interop-write-ssz-state-transitions      Write ssz states to disk after attempted state transition (default: false)
+# kafka-url value                          Stream attestations and blocks to specified kafka servers. This field is used for bootstrap.servers kafka config field.
+# medalla                                  This defines the flag through which we can run on the Medalla Multiclient Testnet (default: false)
+# onyx                                     This defines the flag through which we can run on the Onyx Prysm Testnet (default: false)
+# spadina                                  This defines the flag through which we can run on the Spadina Multiclient Testnet (default: false)
+# use-check-point-cache                    Enables check point info caching (default: false)
+# wait-for-synced                          Uses WaitForSynced for validator startup, to ensure a validator is able to communicate with the beacon node as quick as possible (default: false)
+# zinken                                   This defines the flag through which we can run on the Zinken Multiclient Testnet (default: false)
+
+# interop OPTIONS:
+# interop-genesis-state value   The genesis state file (.SSZ) to load from
+# interop-genesis-time value    Specify the genesis time for interop genesis state generation. Must be used with --interop-num-validators (default: 0)
+# interop-num-validators value  Specify number of genesis validators to generate for interop. Must be used with --interop-genesis-time (default: 0)

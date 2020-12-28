@@ -21,6 +21,4 @@ func TestAccountBalance(t *testing.T) {
 	assert.Nil(t, coins)
 	assert.Equal(t, ErrUnimplemented.Code, err.Code)
 	assert.Equal(t, ErrUnimplemented.Message, err.Message)
-
-	mockClient.AssertExpectations(t)
 }
