@@ -21,10 +21,4 @@ type Client interface {
 		context.Context,
 		*types.PartialBlockIdentifier,
 	) (*types.Block, error)
-
-	Balance(
-		context.Context,
-		*types.AccountIdentifier,
-		*types.PartialBlockIdentifier,
-	) (*types.AccountBalanceResponse, error)
 }
