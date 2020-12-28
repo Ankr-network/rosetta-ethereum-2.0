@@ -20,13 +20,8 @@ const (
 	grpcTimeout            = 120 * time.Second
 )
 
-var (
-	beaconRPC = "167.71.156.69:4000"
-)
-
-// Client allows for querying a set of specific Ethereum endpoints in an
-// idempotent manner. Client relies on the eth_*, debug_*, and admin_*
-// methods and on the graphql endpoint.
+// Client allows for querying a set of specific Ethereum 2.0 endpoints in an
+// idempotent manner.
 //
 type Client struct {
 	url               string
