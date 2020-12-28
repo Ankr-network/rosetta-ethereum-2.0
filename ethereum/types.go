@@ -54,7 +54,7 @@ const (
 	CoinbaseOpType = "COINBASE"
 
 	// MainnetPrysmArguments are the arguments to start a mainnet Prysm instance.
-	MainnetPrysmArguments = `--config-file=/app/ethereum/prysm-config.yaml --datadir=/data`
+	MainnetPrysmArguments = `beacon-chain --config-file=/app/ethereum/prysm-config.yaml --datadir=/data`
 )
 
 var (

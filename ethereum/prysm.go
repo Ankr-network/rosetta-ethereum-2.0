@@ -39,7 +39,7 @@ func logPipe(pipe io.ReadCloser, identifier string) error {
 func StartPrysm(ctx context.Context, arguments string, g *errgroup.Group) error {
 	parsedArgs := strings.Split(arguments, " ")
 	cmd := exec.Command(
-		"/app/prysm.sh beacon-chain",
+		"/app/prysm.sh",
 		parsedArgs...)
 
 	stdout, err := cmd.StdoutPipe()
