@@ -112,7 +112,7 @@ func LoadConfiguration() (*Configuration, error) {
 			Blockchain: ethereum.Blockchain,
 			Network:    ethereum.MainnetNetwork,
 		}
-		config.PrysmArguments = ethereum.MainnetPrysmArguments + "--http-web3provider=" + httpWeb3Provider
+		config.PrysmArguments = ethereum.MainnetPrysmArguments + " --http-web3provider=" + httpWeb3Provider
 	case Testnet:
 		config.Network = &types.NetworkIdentifier{
 			Blockchain: ethereum.Blockchain,
