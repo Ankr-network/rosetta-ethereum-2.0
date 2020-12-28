@@ -24,10 +24,10 @@ const (
 	// to make outbound connections.
 	Offline Mode = "OFFLINE"
 
-	// Mainnet is the Bitcoin Mainnet.
+	// Mainnet is the Ethereum 2.0 Mainnet.
 	Mainnet string = "MAINNET"
 
-	// Testnet is Bitcoin Testnet3.
+	// Testnet is Ethereum 2.0 Testnet.
 	Testnet string = "TESTNET"
 
 	// DataDirectory is the default location for all
@@ -51,6 +51,16 @@ const (
 	// used to connect rosetta-ethereum to an already
 	// running beacon node.
 	BeaconRPCEnv = "BEACON_RPC"
+
+	// HTTPWeb3ProviderEnv is the environment variable
+	// used to connect beacon-node to an already synced
+	// ethereum node
+	HTTPWeb3ProviderEnv = "WEB3PROVIDER"
+
+	// DefaultHTTPWeb3Provider is the default URL
+	// of already synced ethereum node used for connect
+	// beacon-node to connect to
+	DefaultHTTPWeb3Provider = "http://localhost:8545"
 
 	// DefaultRPCURL is the default URL for
 	// a running beacon node. This is used
@@ -89,6 +99,12 @@ func LoadConfiguration() (*Configuration, error) {
 		return nil, fmt.Errorf("%s is not a valid mode", modeValue)
 	}
 
+	httpWeb3Provider := DefaultHTTPWeb3Provider
+	envWeb3Provider := os.Getenv(HTTPWeb3ProviderEnv)
+	if len(envWeb3Provider) > 0 {
+		httpWeb3Provider = envWeb3Provider
+	}
+
 	networkValue := os.Getenv(NetworkEnv)
 	switch networkValue {
 	case Mainnet:
@@ -96,13 +112,13 @@ func LoadConfiguration() (*Configuration, error) {
 			Blockchain: ethereum.Blockchain,
 			Network:    ethereum.MainnetNetwork,
 		}
-		config.PrysmArguments = ethereum.MainnetPrysmArguments
+		config.PrysmArguments = ethereum.MainnetPrysmArguments + "--http-web3provider=" + httpWeb3Provider
 	case Testnet:
 		config.Network = &types.NetworkIdentifier{
 			Blockchain: ethereum.Blockchain,
 			Network:    ethereum.TestnetNetwork,
 		}
-		config.PrysmArguments = ethereum.TestnetPrysmArguments
+		config.PrysmArguments = ethereum.TestnetPrysmArguments + "--http-web3provider=" + httpWeb3Provider
 	case "":
 		return nil, errors.New("NETWORK must be populated")
 	default:

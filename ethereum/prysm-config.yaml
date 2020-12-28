@@ -6,7 +6,6 @@ monitoring-port: 8000
 grpc-gateway-host: localhost
 grpc-gateway-port: 3500
 disable-monitoring: true
-http-web3provider: https://localhost:8545
 
 # cmd OPTIONS:
 # accept-terms-of-use          Accept Terms and Conditions (for non-interactive environments) (default: false)
