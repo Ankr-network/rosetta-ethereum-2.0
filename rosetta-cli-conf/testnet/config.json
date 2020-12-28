@@ -1,0 +1,23 @@
+{
+    "network": {
+      "blockchain": "Ethereum 2.0",
+      "network": "Pyrmont"
+    },
+    "data_directory": "cli-data",
+    "http_timeout": 10,
+    "tip_delay": 300,
+    "max_retries": 5,
+    "max_online_connections": 1000,
+    "compression_disabled": true,
+    "memory_limit_disabled": true,
+    "data": {
+    "initial_balance_fetch_disabled": true,
+    "historical_balance_enabled": false,
+    "reconciliation_disabled": true,
+    "inactive_discrepency_search_disabled": true,
+    "balance_tracking_disabled": true,
+    "end_conditions": {
+        "tip": true
+        }
+    }
+}
