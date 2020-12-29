@@ -2,6 +2,7 @@ package ethereum
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -160,7 +161,6 @@ func (ec *Client) Block(
 	ctx context.Context,
 	blockIdentifier *RosettaTypes.PartialBlockIdentifier,
 ) (*RosettaTypes.Block, error) {
-	fmt.Printf("blockIdentifier: %s", blockIdentifier)
 	if blockIdentifier != nil {
 		if blockIdentifier.Hash != nil {
 			return ec.blockByHash(ctx, *blockIdentifier.Hash)
@@ -175,30 +175,29 @@ func (ec *Client) Block(
 }
 
 func (ec *Client) blockByIndex(ctx context.Context, block int64) (*RosettaTypes.Block, error) {
-	var slot *pb.ListBlocksRequest_Slot
-	fmt.Printf("Block number: %s", slot.Slot)
-	slot.Slot = uint64(block)
-	var in *pb.ListBlocksRequest
-	in.QueryFilter = slot
+	b := uint64(block)
+	in := &pb.ListBlocksRequest{
+		QueryFilter: &pb.ListBlocksRequest_Slot{Slot: b},
+	}
 
 	res, err := ec.beaconChainClient.ListBlocks(ctx, in)
 	if err != nil {
 		log.Fatalf("could not get block by slot index: %s", err)
 	}
-	fmt.Printf("ListBlocks: %s", res)
+
 	rosettaBlock, err := ec.parseBeaconBlock(ctx, res)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("rosettaBlock: %s", rosettaBlock)
 	return rosettaBlock, nil
 }
 
 func (ec *Client) blockByHash(ctx context.Context, hash string) (*RosettaTypes.Block, error) {
-	var root *pb.ListBlocksRequest_Root
-	root.Root = []byte(hash)
-	var in *pb.ListBlocksRequest
-	in.QueryFilter = root
+	base64 := hexToBase64(hash)
+	h := []byte(base64)
+	in := &pb.ListBlocksRequest{
+		QueryFilter: &pb.ListBlocksRequest_Root{Root: h},
+	}
 
 	res, err := ec.beaconChainClient.ListBlocks(ctx, in)
 	if err != nil {
@@ -213,7 +212,7 @@ func (ec *Client) blockByHash(ctx context.Context, hash string) (*RosettaTypes.B
 
 func (ec *Client) parseBeaconBlock(ctx context.Context, block *pb.ListBlocksResponse) (*RosettaTypes.Block, error) {
 	if len(block.BlockContainers) < 1 {
-		return nil, fmt.Errorf("No blocks were found %g", len(block.BlockContainers)) // !TODO add error output
+		return nil, fmt.Errorf("Block doesn't exist") // !TODO add error output
 	}
 
 	var parentBlockIdentifier *RosettaTypes.BlockIdentifier
@@ -221,20 +220,18 @@ func (ec *Client) parseBeaconBlock(ctx context.Context, block *pb.ListBlocksResp
 	if b.Block.Block.Slot != 0 {
 		parentBlockIdentifier = &RosettaTypes.BlockIdentifier{
 			Index: int64(b.Block.Block.Slot - 1),
-			Hash:  string(b.Block.Block.ParentRoot),
+			Hash:  hex.EncodeToString(b.Block.Block.ParentRoot),
 		}
 	}
-	fmt.Printf("parentBlockIdentifier:  %s", parentBlockIdentifier)
 
 	timestamp, err := ec.getBlockTimestamp(ctx, int64(b.Block.Block.Slot))
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("timestamp:  %s", timestamp)
 	return &RosettaTypes.Block{
 		BlockIdentifier: &RosettaTypes.BlockIdentifier{
 			Index: int64(b.Block.Block.Slot),
-			Hash:  string(b.BlockRoot),
+			Hash:  hex.EncodeToString(b.BlockRoot),
 		},
 		ParentBlockIdentifier: parentBlockIdentifier,
 		//The timestamp in milliseconds because some blockchains produce block more often than once a second.
@@ -269,4 +266,16 @@ func (ec *Client) getBlockTimestamp(ctx context.Context, blockNumber int64) (int
 
 func convertTime(time uint64) int64 {
 	return int64(time) * 1000
+}
+
+func hexToBase64(RawHex string) string {
+	Hex := RawHex[2:]
+	Bytes, err := hex.DecodeString(Hex)
+	if err != nil {
+		fmt.Println(err)
+		return ""
+	}
+
+	Base64 := base64.URLEncoding.EncodeToString(Bytes)
+	return Base64
 }
