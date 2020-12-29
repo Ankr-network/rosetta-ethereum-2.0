@@ -166,33 +166,15 @@ func (ec *Client) Block(
 			if err != nil {
 				return nil, err
 			}
-			return ec.parseBeaconBlock(ctx, res)
+			return ec.parseBeaconBlock(ctx, res, *blockIdentifier.Index)
 		}
 
 		if blockIdentifier.Index != nil {
 			res, err := ec.blockByIndex(ctx, *blockIdentifier.Index)
 			if err != nil {
-				if err == ErrBlockMissed {
-					timestamp, err := ec.getBlockTimestamp(ctx, *blockIdentifier.Index)
-					if err != nil {
-						return nil, err
-					}
-					return &RosettaTypes.Block{
-						BlockIdentifier: &RosettaTypes.BlockIdentifier{
-							Index: *blockIdentifier.Index,
-							Hash:  "",
-						},
-						ParentBlockIdentifier: nil,
-						Timestamp:             timestamp * 1000,
-						Transactions:          nil,
-						Metadata: map[string]interface{}{
-							"epoch": *blockIdentifier.Index / 32,
-						},
-					}, nil
-				}
 				return nil, err
 			}
-			return ec.parseBeaconBlock(ctx, res)
+			return ec.parseBeaconBlock(ctx, res, *blockIdentifier.Index)
 		}
 	}
 
@@ -208,18 +190,6 @@ func (ec *Client) blockByIndex(ctx context.Context, block int64) (*pb.ListBlocks
 	res, err := ec.beaconChainClient.ListBlocks(ctx, in)
 	if err != nil {
 		log.Fatalf("could not get block by slot index: %s", err)
-	}
-
-	chainHead, err := ec.chainHead(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if b > chainHead.GetHeadSlot() {
-		return nil, ErrBlockNotExists
-	}
-
-	if len(res.BlockContainers) < 1 {
-		return nil, ErrBlockMissed
 	}
 
 	return res, nil
@@ -243,8 +213,21 @@ func (ec *Client) blockByHash(ctx context.Context, rawHash string) (*pb.ListBloc
 	return res, nil
 }
 
-func (ec *Client) parseBeaconBlock(ctx context.Context, block *pb.ListBlocksResponse) (*RosettaTypes.Block, error) {
+func (ec *Client) parseBeaconBlock(ctx context.Context, block *pb.ListBlocksResponse, index int64) (*RosettaTypes.Block, error) {
 	if len(block.BlockContainers) < 1 {
+		timestamp, _ := ec.getBlockTimestamp(ctx, index)
+		return &RosettaTypes.Block{
+			BlockIdentifier: &RosettaTypes.BlockIdentifier{
+				Index: index,
+				Hash:  "",
+			},
+			ParentBlockIdentifier: nil,
+			Timestamp:             timestamp * 1000,
+			Transactions:          nil,
+			Metadata: map[string]interface{}{
+				"epoch": index / 32,
+			},
+		}, nil
 		return nil, ErrBlockNotExists
 	}
 	b := block.BlockContainers[0]
