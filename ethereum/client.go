@@ -166,7 +166,7 @@ func (ec *Client) Block(
 			if err != nil {
 				return nil, err
 			}
-			return ec.parseBeaconBlock(ctx, res, *blockIdentifier.Index)
+			return ec.parseBeaconBlock(ctx, res)
 		}
 
 		if blockIdentifier.Index != nil {
@@ -174,7 +174,7 @@ func (ec *Client) Block(
 			if err != nil {
 				return nil, err
 			}
-			return ec.parseBeaconBlock(ctx, res, *blockIdentifier.Index)
+			return ec.parseBeaconBlock(ctx, res)
 		}
 	}
 
@@ -213,22 +213,9 @@ func (ec *Client) blockByHash(ctx context.Context, rawHash string) (*pb.ListBloc
 	return res, nil
 }
 
-func (ec *Client) parseBeaconBlock(ctx context.Context, block *pb.ListBlocksResponse, index int64) (*RosettaTypes.Block, error) {
+func (ec *Client) parseBeaconBlock(ctx context.Context, block *pb.ListBlocksResponse) (*RosettaTypes.Block, error) {
 	if len(block.BlockContainers) < 1 {
-		timestamp, _ := ec.getBlockTimestamp(ctx, index)
-		return &RosettaTypes.Block{
-			BlockIdentifier: &RosettaTypes.BlockIdentifier{
-				Index: index,
-				Hash:  "",
-			},
-			ParentBlockIdentifier: nil,
-			Timestamp:             timestamp * 1000,
-			Transactions:          nil,
-			Metadata: map[string]interface{}{
-				"epoch": index / 32,
-			},
-		}, nil
-		return nil, ErrBlockNotExists
+		return nil, nil
 	}
 	b := block.BlockContainers[0]
 
@@ -238,7 +225,7 @@ func (ec *Client) parseBeaconBlock(ctx context.Context, block *pb.ListBlocksResp
 		return nil, err
 	}
 	if len(parentBlocks.BlockContainers) < 1 {
-		return nil, ErrBlockNotExists
+		return nil, nil
 	}
 	parentBlock := parentBlocks.BlockContainers[0]
 
