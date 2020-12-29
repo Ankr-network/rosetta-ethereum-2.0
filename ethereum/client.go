@@ -172,6 +172,24 @@ func (ec *Client) Block(
 		if blockIdentifier.Index != nil {
 			res, err := ec.blockByIndex(ctx, *blockIdentifier.Index)
 			if err != nil {
+				if err == ErrBlockMissed {
+					timestamp, err := ec.getBlockTimestamp(ctx, *blockIdentifier.Index)
+					if err != nil {
+						return nil, err
+					}
+					return &RosettaTypes.Block{
+						BlockIdentifier: &RosettaTypes.BlockIdentifier{
+							Index: *blockIdentifier.Index,
+							Hash:  "",
+						},
+						ParentBlockIdentifier: nil,
+						Timestamp:             timestamp * 1000,
+						Transactions:          nil,
+						Metadata: map[string]interface{}{
+							"epoch": *blockIdentifier.Index / 32,
+						},
+					}, nil
+				}
 				return nil, err
 			}
 			return ec.parseBeaconBlock(ctx, res)
@@ -190,6 +208,18 @@ func (ec *Client) blockByIndex(ctx context.Context, block int64) (*pb.ListBlocks
 	res, err := ec.beaconChainClient.ListBlocks(ctx, in)
 	if err != nil {
 		log.Fatalf("could not get block by slot index: %s", err)
+	}
+
+	chainHead, err := ec.chainHead(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if b > chainHead.GetHeadSlot() {
+		return nil, ErrBlockNotExists
+	}
+
+	if len(res.BlockContainers) < 1 {
+		return nil, ErrBlockMissed
 	}
 
 	return res, nil
@@ -225,7 +255,7 @@ func (ec *Client) parseBeaconBlock(ctx context.Context, block *pb.ListBlocksResp
 		return nil, err
 	}
 	if len(parentBlocks.BlockContainers) < 1 {
-		return nil, nil
+		return nil, ErrBlockNotExists
 	}
 	parentBlock := parentBlocks.BlockContainers[0]
 

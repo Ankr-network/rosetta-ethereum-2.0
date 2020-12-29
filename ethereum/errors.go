@@ -9,4 +9,5 @@ var (
 	ErrCallOutputMarshal     = errors.New("call output marshal")
 	ErrCallMethodInvalid     = errors.New("call method invalid")
 	ErrBlockNotExists        = errors.New("block doesn't exist")
+	ErrBlockMissed           = errors.New("block is missed")
 )
