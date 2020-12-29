@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"rosetta-ethereum-2.0/configuration"
+	"rosetta-ethereum-2.0/ethereum"
 
 	"github.com/coinbase/rosetta-sdk-go/types"
 )
@@ -36,6 +37,9 @@ func (s *BlockAPIService) Block(
 
 	block, err := s.client.Block(ctx, request.BlockIdentifier)
 	if err != nil {
+		if err == ethereum.ErrBlockNotExists {
+			return nil, ErrBlockOrphaned
+		}
 		return nil, wrapErr(ErrBeacon, err)
 	}
 

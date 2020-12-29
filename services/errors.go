@@ -42,7 +42,7 @@ var (
 	// errors on a request.
 	ErrBeacon = &types.Error{
 		Code:    2, //nolint
-		Message: "geth error",
+		Message: "beacon error",
 	}
 
 	// ErrUnableToDecompressPubkey is returned when
