@@ -8,4 +8,5 @@ var (
 	ErrCallParametersInvalid = errors.New("call parameters invalid")
 	ErrCallOutputMarshal     = errors.New("call output marshal")
 	ErrCallMethodInvalid     = errors.New("call method invalid")
+	ErrBlockNotExists        = errors.New("block doesn't exist")
 )

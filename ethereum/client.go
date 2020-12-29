@@ -183,6 +183,13 @@ func (ec *Client) Block(
 
 func (ec *Client) blockByIndex(ctx context.Context, block int64) (*pb.ListBlocksResponse, error) {
 	b := uint64(block)
+	chainHead, err := ec.chainHead(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if block > int64(chainHead.GetHeadSlot()) {
+		return nil, ErrBlockNotExists
+	}
 	in := &pb.ListBlocksRequest{
 		QueryFilter: &pb.ListBlocksRequest_Slot{Slot: b},
 	}
