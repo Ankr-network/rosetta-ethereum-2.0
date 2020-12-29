@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
@@ -105,7 +106,7 @@ func (ec *Client) Status(ctx context.Context) (
 		},
 		&RosettaTypes.BlockIdentifier{
 			Hash:  hex.EncodeToString(genesis.GetGenesisValidatorsRoot()),
-			Index: int64(0),
+			Index: 1,
 		},
 		timeutils.Now().Unix() * 1000,
 		syncStatus,
@@ -159,6 +160,7 @@ func (ec *Client) Block(
 	ctx context.Context,
 	blockIdentifier *RosettaTypes.PartialBlockIdentifier,
 ) (*RosettaTypes.Block, error) {
+	fmt.Printf("blockIdentifier: %s", blockIdentifier)
 	if blockIdentifier != nil {
 		if blockIdentifier.Hash != nil {
 			return ec.blockByHash(ctx, *blockIdentifier.Hash)
@@ -175,6 +177,7 @@ func (ec *Client) Block(
 func (ec *Client) blockByIndex(ctx context.Context, block int64) (*RosettaTypes.Block, error) {
 	var slot *pb.ListBlocksRequest_Slot
 	slot.Slot = uint64(block)
+	fmt.Printf("Block number: %s", slot.Slot)
 	var in *pb.ListBlocksRequest
 	in.QueryFilter = slot
 
@@ -182,10 +185,12 @@ func (ec *Client) blockByIndex(ctx context.Context, block int64) (*RosettaTypes.
 	if err != nil {
 		log.Fatalf("could not get block by slot index: %s", err)
 	}
+	fmt.Printf("ListBlocks: %s", res)
 	rosettaBlock, err := ec.parseBeaconBlock(ctx, res)
 	if err != nil {
 		return nil, err
 	}
+	fmt.Printf("rosettaBlock: %s", rosettaBlock)
 	return rosettaBlock, nil
 }
 
@@ -207,8 +212,8 @@ func (ec *Client) blockByHash(ctx context.Context, hash string) (*RosettaTypes.B
 }
 
 func (ec *Client) parseBeaconBlock(ctx context.Context, block *pb.ListBlocksResponse) (*RosettaTypes.Block, error) {
-	if len(block.BlockContainers) < 0 {
-		return nil, nil // !TODO add error output
+	if len(block.BlockContainers) < 1 {
+		return nil, fmt.Errorf("No blocks were found %g", len(block.BlockContainers)) // !TODO add error output
 	}
 
 	var parentBlockIdentifier *RosettaTypes.BlockIdentifier
@@ -219,11 +224,13 @@ func (ec *Client) parseBeaconBlock(ctx context.Context, block *pb.ListBlocksResp
 			Hash:  string(b.Block.Block.ParentRoot),
 		}
 	}
+	fmt.Printf("parentBlockIdentifier:  %s", parentBlockIdentifier)
 
 	timestamp, err := ec.getBlockTimestamp(ctx, int64(b.Block.Block.Slot))
 	if err != nil {
 		return nil, err
 	}
+	fmt.Printf("timestamp:  %s", timestamp)
 	return &RosettaTypes.Block{
 		BlockIdentifier: &RosettaTypes.BlockIdentifier{
 			Index: int64(b.Block.Block.Slot),
