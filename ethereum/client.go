@@ -2,11 +2,10 @@ package ethereum
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"rosetta-ethereum-2.0/timeutils"
@@ -163,18 +162,26 @@ func (ec *Client) Block(
 ) (*RosettaTypes.Block, error) {
 	if blockIdentifier != nil {
 		if blockIdentifier.Hash != nil {
-			return ec.blockByHash(ctx, *blockIdentifier.Hash)
+			res, err := ec.blockByHash(ctx, *blockIdentifier.Hash)
+			if err != nil {
+				return nil, err
+			}
+			return ec.parseBeaconBlock(ctx, res)
 		}
 
 		if blockIdentifier.Index != nil {
-			return ec.blockByIndex(ctx, *blockIdentifier.Index)
+			res, err := ec.blockByHash(ctx, *blockIdentifier.Hash)
+			if err != nil {
+				return nil, err
+			}
+			return ec.parseBeaconBlock(ctx, res)
 		}
 	}
 
 	return nil, errors.New("Query must be hash or index")
 }
 
-func (ec *Client) blockByIndex(ctx context.Context, block int64) (*RosettaTypes.Block, error) {
+func (ec *Client) blockByIndex(ctx context.Context, block int64) (*pb.ListBlocksResponse, error) {
 	b := uint64(block)
 	in := &pb.ListBlocksRequest{
 		QueryFilter: &pb.ListBlocksRequest_Slot{Slot: b},
@@ -185,16 +192,16 @@ func (ec *Client) blockByIndex(ctx context.Context, block int64) (*RosettaTypes.
 		log.Fatalf("could not get block by slot index: %s", err)
 	}
 
-	rosettaBlock, err := ec.parseBeaconBlock(ctx, res)
-	if err != nil {
-		return nil, err
-	}
-	return rosettaBlock, nil
+	return res, nil
 }
 
-func (ec *Client) blockByHash(ctx context.Context, hash string) (*RosettaTypes.Block, error) {
-	base64 := hexToBase64(hash)
-	h := []byte(base64)
+func (ec *Client) blockByHash(ctx context.Context, rawHash string) (*pb.ListBlocksResponse, error) {
+	hash := trimHash(rawHash)
+	h, err := hex.DecodeString(hash)
+	if err != nil {
+		log.Fatalf("could not decode hash: %s", err)
+	}
+
 	in := &pb.ListBlocksRequest{
 		QueryFilter: &pb.ListBlocksRequest_Root{Root: h},
 	}
@@ -203,24 +210,29 @@ func (ec *Client) blockByHash(ctx context.Context, hash string) (*RosettaTypes.B
 	if err != nil {
 		log.Fatalf("could not get block by root hash: %s", err)
 	}
-	rosettaBlock, err := ec.parseBeaconBlock(ctx, res)
-	if err != nil {
-		return nil, err
-	}
-	return rosettaBlock, nil
+	return res, nil
 }
 
 func (ec *Client) parseBeaconBlock(ctx context.Context, block *pb.ListBlocksResponse) (*RosettaTypes.Block, error) {
 	if len(block.BlockContainers) < 1 {
-		return nil, nil // !TODO add error output
+		return nil, nil
 	}
+	b := block.BlockContainers[0]
 
 	var parentBlockIdentifier *RosettaTypes.BlockIdentifier
-	b := block.BlockContainers[0]
+	parentBlocks, err := ec.blockByHash(ctx, hex.EncodeToString(b.Block.Block.ParentRoot))
+	if err != nil {
+		return nil, err
+	}
+	if len(parentBlocks.BlockContainers) < 1 {
+		return nil, nil
+	}
+	parentBlock := parentBlocks.BlockContainers[0]
+
 	if b.Block.Block.Slot != 0 {
 		parentBlockIdentifier = &RosettaTypes.BlockIdentifier{
-			Index: int64(b.Block.Block.Slot - 1),
-			Hash:  hex.EncodeToString(b.Block.Block.ParentRoot),
+			Index: int64(parentBlock.Block.Block.Slot),
+			Hash:  hex.EncodeToString(parentBlock.BlockRoot),
 		}
 	}
 
@@ -268,14 +280,9 @@ func convertTime(time uint64) int64 {
 	return int64(time) * 1000
 }
 
-func hexToBase64(RawHex string) string {
-	Hex := RawHex[2:]
-	Bytes, err := hex.DecodeString(Hex)
-	if err != nil {
-		fmt.Println(err)
-		return ""
+func trimHash(rawHash string) string {
+	if strings.HasPrefix(rawHash, "0x") {
+		return rawHash[2:]
 	}
-
-	Base64 := base64.URLEncoding.EncodeToString(Bytes)
-	return Base64
+	return rawHash
 }
