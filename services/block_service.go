@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"errors"
 
 	"rosetta-ethereum-2.0/configuration"
 
@@ -37,9 +36,6 @@ func (s *BlockAPIService) Block(
 
 	block, err := s.client.Block(ctx, request.BlockIdentifier)
 	if err != nil {
-		if err == errors.New("block orphaned") {
-			return nil, ErrBlockOrphaned
-		}
 		return nil, wrapErr(ErrBeacon, err)
 	}
 

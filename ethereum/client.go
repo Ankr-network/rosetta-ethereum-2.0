@@ -212,7 +212,7 @@ func (ec *Client) blockByHash(ctx context.Context, hash string) (*RosettaTypes.B
 
 func (ec *Client) parseBeaconBlock(ctx context.Context, block *pb.ListBlocksResponse) (*RosettaTypes.Block, error) {
 	if len(block.BlockContainers) < 1 {
-		return nil, ErrBlockOrphaned // !TODO add error output
+		return nil, nil // !TODO add error output
 	}
 
 	var parentBlockIdentifier *RosettaTypes.BlockIdentifier
