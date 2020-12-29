@@ -176,8 +176,8 @@ func (ec *Client) Block(
 
 func (ec *Client) blockByIndex(ctx context.Context, block int64) (*RosettaTypes.Block, error) {
 	var slot *pb.ListBlocksRequest_Slot
-	slot.Slot = uint64(block)
 	fmt.Printf("Block number: %s", slot.Slot)
+	slot.Slot = uint64(block)
 	var in *pb.ListBlocksRequest
 	in.QueryFilter = slot
 

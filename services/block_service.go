@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 
 	"rosetta-ethereum-2.0/configuration"
 
@@ -33,6 +34,7 @@ func (s *BlockAPIService) Block(
 	if s.config.Mode != configuration.Online {
 		return nil, ErrUnavailableOffline
 	}
+	fmt.Printf("request.BlockIdentifier: %s", request.BlockIdentifier)
 
 	block, err := s.client.Block(ctx, request.BlockIdentifier)
 	if err != nil {
