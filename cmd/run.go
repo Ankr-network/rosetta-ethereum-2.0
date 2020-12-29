@@ -43,6 +43,7 @@ var (
 )
 
 func runRunCmd(cmd *cobra.Command, args []string) error {
+	fmt.Printf("Unix epoch: %s", asserter.MinUnixEpoch)
 	cfg, err := configuration.LoadConfiguration()
 	if err != nil {
 		return fmt.Errorf("%w: unable to load configuration", err)

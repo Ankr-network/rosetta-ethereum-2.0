@@ -102,7 +102,7 @@ func (ec *Client) Status(ctx context.Context) (
 			Hash:  hex.EncodeToString(chainHead.GetHeadBlockRoot()),
 			Index: int64(chainHead.GetHeadSlot()),
 		},
-		timeutils.Now().Unix(),
+		timeutils.Now().Unix() * 1000,
 		syncStatus,
 		peers,
 		nil
