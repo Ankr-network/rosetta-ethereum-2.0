@@ -54,6 +54,7 @@ func (ec *Client) Close() {
 
 func (ec *Client) Status(ctx context.Context) (
 	*RosettaTypes.BlockIdentifier,
+	*RosettaTypes.BlockIdentifier,
 	int64,
 	*RosettaTypes.SyncStatus,
 	[]*RosettaTypes.Peer,
@@ -61,12 +62,12 @@ func (ec *Client) Status(ctx context.Context) (
 ) {
 	chainHead, err := ec.chainHead(ctx)
 	if err != nil {
-		return nil, -1, nil, nil, err
+		return nil, nil, -1, nil, nil, err
 	}
 
 	genesis, err := ec.genesis(ctx)
 	if err != nil {
-		return nil, -1, nil, nil, err
+		return nil, nil, -1, nil, nil, err
 	}
 
 	genesisTime := genesis.GetGenesisTime()
@@ -95,12 +96,16 @@ func (ec *Client) Status(ctx context.Context) (
 
 	peers, err := ec.peers(ctx)
 	if err != nil {
-		return nil, -1, nil, nil, err
+		return nil, nil, -1, nil, nil, err
 	}
 
 	return &RosettaTypes.BlockIdentifier{
 			Hash:  hex.EncodeToString(chainHead.GetHeadBlockRoot()),
 			Index: int64(chainHead.GetHeadSlot()),
+		},
+		&RosettaTypes.BlockIdentifier{
+			Hash:  hex.EncodeToString(genesis.GetGenesisValidatorsRoot()),
+			Index: int64(0),
 		},
 		timeutils.Now().Unix() * 1000,
 		syncStatus,

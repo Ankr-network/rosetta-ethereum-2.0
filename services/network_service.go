@@ -67,7 +67,7 @@ func (s *NetworkAPIService) NetworkStatus(
 		return nil, ErrUnavailableOffline
 	}
 
-	currentBlock, currentTime, syncStatus, peers, err := s.client.Status(ctx)
+	currentBlock, genesisBlock, currentTime, syncStatus, peers, err := s.client.Status(ctx)
 	if err != nil {
 		return nil, wrapErr(ErrBeacon, err)
 	}
@@ -79,7 +79,7 @@ func (s *NetworkAPIService) NetworkStatus(
 	return &types.NetworkStatusResponse{
 		CurrentBlockIdentifier: currentBlock,
 		CurrentBlockTimestamp:  currentTime,
-		GenesisBlockIdentifier: s.config.GenesisBlockIdentifier,
+		GenesisBlockIdentifier: genesisBlock,
 		SyncStatus:             syncStatus,
 		Peers:                  peers,
 	}, nil

@@ -11,6 +11,7 @@ import (
 type Client interface {
 	Status(context.Context) (
 		*types.BlockIdentifier,
+		*types.BlockIdentifier,
 		int64,
 		*types.SyncStatus,
 		[]*types.Peer,
