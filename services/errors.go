@@ -127,7 +127,7 @@ var (
 	// cannot yet serve any queries.
 	ErrBeaconNotReady = &types.Error{
 		Code:      13, //nolint
-		Message:   "geth not ready",
+		Message:   "Beacon not ready",
 		Retriable: true,
 	}
 )
