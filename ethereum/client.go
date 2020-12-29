@@ -170,7 +170,7 @@ func (ec *Client) Block(
 		}
 
 		if blockIdentifier.Index != nil {
-			res, err := ec.blockByHash(ctx, *blockIdentifier.Hash)
+			res, err := ec.blockByIndex(ctx, *blockIdentifier.Index)
 			if err != nil {
 				return nil, err
 			}
