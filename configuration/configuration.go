@@ -65,7 +65,7 @@ const (
 	// DefaultRPCURL is the default URL for
 	// a running beacon node. This is used
 	// when BeaconRPCEnv is not populated.
-	DefaultRPCURL = "http://localhost:4000"
+	DefaultRPCURL = "127.0.0.1:4000"
 
 	// MiddlewareVersion is the version of rosetta-ethereum.
 	MiddlewareVersion = "0.0.1"

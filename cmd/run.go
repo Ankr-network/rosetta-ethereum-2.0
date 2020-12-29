@@ -53,10 +53,8 @@ func runRunCmd(cmd *cobra.Command, args []string) error {
 	asserter, err := asserter.NewServer(
 		ethereum.OperationTypes,
 		ethereum.HistoricalBalanceSupported,
-		[]*types.NetworkIdentifier{
-			cfg.Network,
-		},
-		ethereum.CallMethods,
+		[]*types.NetworkIdentifier{cfg.Network},
+		nil,
 		false,
 	)
 	if err != nil {

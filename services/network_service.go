@@ -53,7 +53,7 @@ func (s *NetworkAPIService) NetworkOptions(
 			OperationTypes:          ethereum.OperationTypes,
 			OperationStatuses:       ethereum.OperationStatuses,
 			HistoricalBalanceLookup: ethereum.HistoricalBalanceSupported,
-			CallMethods:             ethereum.CallMethods,
+			CallMethods:             nil,
 		},
 	}, nil
 }

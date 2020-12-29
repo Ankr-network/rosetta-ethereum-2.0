@@ -23,7 +23,7 @@ const (
 
 	// HistoricalBalanceSupported is whether
 	// historical balance is supported.
-	HistoricalBalanceSupported = true
+	HistoricalBalanceSupported = false
 
 	// Symbol is the symbol value
 	// used in Currency.
