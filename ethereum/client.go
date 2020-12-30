@@ -191,7 +191,9 @@ func (ec *Client) blockByIndex(ctx context.Context, block int64) (*pb.ListBlocks
 	if err != nil {
 		log.Fatalf("could not get block by slot index: %s", err)
 	}
-
+	if len(res.BlockContainers) < 1 {
+		return nil, ErrBlockNotFound
+	}
 	return res, nil
 }
 
@@ -210,22 +212,19 @@ func (ec *Client) blockByHash(ctx context.Context, rawHash string) (*pb.ListBloc
 	if err != nil {
 		log.Fatalf("could not get block by root hash: %s", err)
 	}
+	if len(res.BlockContainers) < 1 {
+		return nil, ErrBlockNotFound
+	}
 	return res, nil
 }
 
 func (ec *Client) parseBeaconBlock(ctx context.Context, block *pb.ListBlocksResponse) (*RosettaTypes.Block, error) {
-	if len(block.BlockContainers) < 1 {
-		return nil, nil
-	}
 	b := block.BlockContainers[0]
 
 	var parentBlockIdentifier *RosettaTypes.BlockIdentifier
 	parentBlocks, err := ec.blockByHash(ctx, hex.EncodeToString(b.Block.Block.ParentRoot))
 	if err != nil {
 		return nil, err
-	}
-	if len(parentBlocks.BlockContainers) < 1 {
-		return nil, nil
 	}
 	parentBlock := parentBlocks.BlockContainers[0]
 
