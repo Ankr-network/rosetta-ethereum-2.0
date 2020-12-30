@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -277,6 +278,7 @@ func (ec *Client) getDummyBlock(ctx context.Context, index int64) (*RosettaTypes
 	if err != nil {
 		return nil, err
 	}
+	fmt.Printf("return dummy block\n")
 	return &RosettaTypes.Block{
 		BlockIdentifier: &RosettaTypes.BlockIdentifier{
 			Index: index,
@@ -287,7 +289,7 @@ func (ec *Client) getDummyBlock(ctx context.Context, index int64) (*RosettaTypes
 		Timestamp:    timestamp * 1000,
 		Transactions: nil,
 		Metadata: map[string]interface{}{
-			"epoch": index / 32,
+			"message": "This block doesn't exist, returned data is fake",
 		},
 	}, nil
 }
