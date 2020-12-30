@@ -19,6 +19,7 @@ import (
 const (
 	secondsPerSlotCreation = uint64(12)
 	grpcTimeout            = 120 * time.Second
+	dummyHash              = "0000000000000000000000000000000000000000000000000000000000000005"
 )
 
 // Client allows for querying a set of specific Ethereum 2.0 endpoints in an
@@ -163,6 +164,9 @@ func (ec *Client) Block(
 	if blockIdentifier != nil {
 		if blockIdentifier.Hash != nil {
 			res, err := ec.blockByHash(ctx, *blockIdentifier.Hash)
+			if err == ErrBlockMissed {
+				return ec.getDummyBlock(ctx, *blockIdentifier.Index)
+			}
 			if err != nil {
 				return nil, err
 			}
@@ -171,6 +175,9 @@ func (ec *Client) Block(
 
 		if blockIdentifier.Index != nil {
 			res, err := ec.blockByIndex(ctx, *blockIdentifier.Index)
+			if err == ErrBlockMissed {
+				return ec.getDummyBlock(ctx, *blockIdentifier.Index)
+			}
 			if err != nil {
 				return nil, err
 			}
@@ -192,12 +199,22 @@ func (ec *Client) blockByIndex(ctx context.Context, block int64) (*pb.ListBlocks
 		log.Fatalf("could not get block by slot index: %s", err)
 	}
 	if len(res.BlockContainers) < 1 {
+		chainHead, err := ec.chainHead(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if block <= int64(chainHead.GetHeadSlot()) {
+			return nil, ErrBlockMissed
+		}
 		return nil, ErrBlockNotFound
 	}
 	return res, nil
 }
 
 func (ec *Client) blockByHash(ctx context.Context, rawHash string) (*pb.ListBlocksResponse, error) {
+	if rawHash == dummyHash {
+		return nil, ErrBlockMissed
+	}
 	hash := trimHash(rawHash)
 	h, err := hex.DecodeString(hash)
 	if err != nil {
@@ -251,6 +268,26 @@ func (ec *Client) parseBeaconBlock(ctx context.Context, block *pb.ListBlocksResp
 		Metadata: map[string]interface{}{
 			"epoch": int64(b.Block.Block.Slot) / 32,
 			// "attestations": b.Block.Block.Body,
+		},
+	}, nil
+}
+
+func (ec *Client) getDummyBlock(ctx context.Context, index int64) (*RosettaTypes.Block, error) {
+	timestamp, err := ec.getBlockTimestamp(ctx, index)
+	if err != nil {
+		return nil, err
+	}
+	return &RosettaTypes.Block{
+		BlockIdentifier: &RosettaTypes.BlockIdentifier{
+			Index: index,
+			Hash:  dummyHash,
+		},
+		ParentBlockIdentifier: nil,
+		//The timestamp in milliseconds because some blockchains produce block more often than once a second.
+		Timestamp:    timestamp * 1000,
+		Transactions: nil,
+		Metadata: map[string]interface{}{
+			"epoch": index / 32,
 		},
 	}, nil
 }
