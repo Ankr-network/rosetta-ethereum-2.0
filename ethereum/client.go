@@ -21,6 +21,7 @@ const (
 	secondsPerSlotCreation = uint64(12)
 	grpcTimeout            = 120 * time.Second
 	dummyHash              = "0000000000000000000000000000000000000000000000000000000000000005"
+	parrentDummyHash       = "0000000000000000000000000000000000000000000000000000000000000009"
 )
 
 // Client allows for querying a set of specific Ethereum 2.0 endpoints in an
@@ -279,12 +280,17 @@ func (ec *Client) getDummyBlock(ctx context.Context, index int64) (*RosettaTypes
 		return nil, err
 	}
 	fmt.Printf("return dummy block\n")
+	var parentBlockIdentifier *RosettaTypes.BlockIdentifier
+	parentBlockIdentifier = &RosettaTypes.BlockIdentifier{
+		Index: 0,
+		Hash:  parrentDummyHash,
+	}
 	return &RosettaTypes.Block{
 		BlockIdentifier: &RosettaTypes.BlockIdentifier{
 			Index: index,
 			Hash:  dummyHash,
 		},
-		ParentBlockIdentifier: nil,
+		ParentBlockIdentifier: parentBlockIdentifier,
 		//The timestamp in milliseconds because some blockchains produce block more often than once a second.
 		Timestamp:    timestamp * 1000,
 		Transactions: nil,
