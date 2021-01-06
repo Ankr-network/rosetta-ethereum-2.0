@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -237,6 +238,12 @@ func (ec *Client) parseBeaconBlock(ctx context.Context, block *pb.ListBlocksResp
 		return nil, err
 	}
 	parentBlock := parentBlocks.BlockContainers[0]
+
+	fmt.Println("[DEBUG] Parent block Index: ", int64(parentBlock.Block.Block.Slot))
+	fmt.Println("[DEBUG] Parent block Hash: ", hex.EncodeToString(parentBlock.BlockRoot))
+
+	fmt.Println("[DEBUG] Current block Index: ", int64(b.Block.Block.Slot))
+	fmt.Println("[DEBUG] Current block Hash: ", hex.EncodeToString(b.BlockRoot))
 
 	if b.Block.Block.Slot != 0 {
 		parentBlockIdentifier = &RosettaTypes.BlockIdentifier{
