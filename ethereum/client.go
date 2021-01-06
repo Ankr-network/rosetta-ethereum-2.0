@@ -19,8 +19,6 @@ import (
 const (
 	secondsPerSlotCreation = uint64(12)
 	grpcTimeout            = 120 * time.Second
-	dummyHash              = "0000000000000000000000000000000000000000000000000000000000000005"
-	parrentDummyHash       = "0000000000000000000000000000000000000000000000000000000000000009"
 )
 
 // Client allows for querying a set of specific Ethereum 2.0 endpoints in an

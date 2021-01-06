@@ -39,9 +39,6 @@ func (s *BlockAPIService) Block(
 		return nil, wrapErr(ErrBeacon, err)
 	}
 
-	if block == nil {
-		return &types.BlockResponse{}, nil
-	}
 	return &types.BlockResponse{
 		Block: block,
 	}, nil
