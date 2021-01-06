@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -166,9 +165,6 @@ func (ec *Client) Block(
 	if blockIdentifier != nil {
 		if blockIdentifier.Hash != nil {
 			res, err := ec.blockByHash(ctx, *blockIdentifier.Hash)
-			if err == ErrBlockMissed {
-				return ec.getDummyBlock(ctx, *blockIdentifier.Index)
-			}
 			if err != nil {
 				return nil, err
 			}
@@ -177,9 +173,6 @@ func (ec *Client) Block(
 
 		if blockIdentifier.Index != nil {
 			res, err := ec.blockByIndex(ctx, *blockIdentifier.Index)
-			if err == ErrBlockMissed {
-				return ec.getDummyBlock(ctx, *blockIdentifier.Index)
-			}
 			if err != nil {
 				return nil, err
 			}
@@ -206,7 +199,7 @@ func (ec *Client) blockByIndex(ctx context.Context, block int64) (*pb.ListBlocks
 			return nil, err
 		}
 		if block <= int64(chainHead.GetHeadSlot()) {
-			return nil, ErrBlockMissed
+			return nil, nil
 		}
 		return nil, ErrBlockNotFound
 	}
@@ -214,9 +207,6 @@ func (ec *Client) blockByIndex(ctx context.Context, block int64) (*pb.ListBlocks
 }
 
 func (ec *Client) blockByHash(ctx context.Context, rawHash string) (*pb.ListBlocksResponse, error) {
-	if rawHash == dummyHash {
-		return nil, ErrBlockMissed
-	}
 	hash := trimHash(rawHash)
 	h, err := hex.DecodeString(hash)
 	if err != nil {
@@ -238,6 +228,9 @@ func (ec *Client) blockByHash(ctx context.Context, rawHash string) (*pb.ListBloc
 }
 
 func (ec *Client) parseBeaconBlock(ctx context.Context, block *pb.ListBlocksResponse) (*RosettaTypes.Block, error) {
+	if block == nil {
+		return nil, nil
+	}
 	b := block.BlockContainers[0]
 
 	var parentBlockIdentifier *RosettaTypes.BlockIdentifier
@@ -270,32 +263,6 @@ func (ec *Client) parseBeaconBlock(ctx context.Context, block *pb.ListBlocksResp
 		Metadata: map[string]interface{}{
 			"epoch": int64(b.Block.Block.Slot) / 32,
 			// "attestations": b.Block.Block.Body,
-		},
-	}, nil
-}
-
-func (ec *Client) getDummyBlock(ctx context.Context, index int64) (*RosettaTypes.Block, error) {
-	timestamp, err := ec.getBlockTimestamp(ctx, index)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Printf("return dummy block\n")
-	var parentBlockIdentifier *RosettaTypes.BlockIdentifier
-	parentBlockIdentifier = &RosettaTypes.BlockIdentifier{
-		Index: 0,
-		Hash:  parrentDummyHash,
-	}
-	return &RosettaTypes.Block{
-		BlockIdentifier: &RosettaTypes.BlockIdentifier{
-			Index: index,
-			Hash:  dummyHash,
-		},
-		ParentBlockIdentifier: parentBlockIdentifier,
-		//The timestamp in milliseconds because some blockchains produce block more often than once a second.
-		Timestamp:    timestamp * 1000,
-		Transactions: nil,
-		Metadata: map[string]interface{}{
-			"message": "This block doesn't exist, returned data is fake",
 		},
 	}, nil
 }
