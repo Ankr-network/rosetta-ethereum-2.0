@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 
 	"rosetta-ethereum-2.0/configuration"
 
@@ -38,7 +39,7 @@ func (s *BlockAPIService) Block(
 	if err != nil {
 		return nil, wrapErr(ErrBeacon, err)
 	}
-
+	fmt.Println("Block response: ", &types.BlockResponse{Block: block})
 	return &types.BlockResponse{
 		Block: block,
 	}, nil
