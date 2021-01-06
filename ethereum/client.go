@@ -229,7 +229,7 @@ func (ec *Client) blockByHash(ctx context.Context, rawHash string) (*pb.ListBloc
 
 func (ec *Client) parseBeaconBlock(ctx context.Context, block *pb.ListBlocksResponse) (*RosettaTypes.Block, error) {
 	if block == nil {
-		return nil, nil
+		return &RosettaTypes.Block{}, nil
 	}
 	b := block.BlockContainers[0]
 
