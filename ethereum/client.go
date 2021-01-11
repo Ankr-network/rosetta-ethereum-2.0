@@ -74,10 +74,11 @@ func (ec *Client) Status(ctx context.Context) (
 
 	genesisTime := genesis.GetGenesisTime()
 	highestBlock := getHighestBlock(genesisTime.GetSeconds())
+	highestFinalizedBlock := getHighestFinalizedBlock(highestBlock)
 
 	var syncStatus *RosettaTypes.SyncStatus
 	currentIndex := int64(chainHead.GetFinalizedSlot())
-	targetIndex := int64(highestBlock)
+	targetIndex := int64(highestFinalizedBlock)
 
 	stage := "synced"
 	synced := true
@@ -279,6 +280,11 @@ func getHighestBlock(genesisTimeSec int64) uint64 {
 		return 0
 	}
 	return uint64(now-genesis) / secondsPerSlotCreation
+}
+
+func getHighestFinalizedBlock(highestBlock uint64) uint64 {
+	r := (highestBlock / 32) - 2
+	return r * 32
 }
 
 func (ec *Client) getBlockTimestamp(ctx context.Context, blockNumber int64) (int64, error) {
