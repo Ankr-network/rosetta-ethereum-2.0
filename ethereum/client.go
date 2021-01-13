@@ -76,7 +76,7 @@ func (ec *Client) Status(ctx context.Context) (
 	highestBlock := getHighestBlock(genesisTime.GetSeconds())
 
 	var syncStatus *RosettaTypes.SyncStatus
-	currentIndex := int64(chainHead.GetFinalizedSlot())
+	currentIndex := int64(chainHead.GetHeadSlot())
 	targetIndex := int64(highestBlock)
 
 	stage := "synced"
