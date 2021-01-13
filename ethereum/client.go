@@ -74,11 +74,10 @@ func (ec *Client) Status(ctx context.Context) (
 
 	genesisTime := genesis.GetGenesisTime()
 	highestBlock := getHighestBlock(genesisTime.GetSeconds())
-	highestFinalizedBlock := getHighestFinalizedBlock(highestBlock)
 
 	var syncStatus *RosettaTypes.SyncStatus
-	currentIndex := int64(chainHead.GetFinalizedSlot())
-	targetIndex := int64(highestFinalizedBlock)
+	currentIndex := int64(chainHead.GetHeadSlot())
+	targetIndex := int64(highestBlock)
 
 	stage := "synced"
 	synced := true
@@ -89,6 +88,13 @@ func (ec *Client) Status(ctx context.Context) (
 		stage = "syncing"
 		synced = false
 	}
+
+	fmt.Println("[DEBUG] [STATUS] {")
+	fmt.Println("[DEBUG] [STATUS]     syncStatus: ", stage)
+	fmt.Println("[DEBUG] [STATUS]     currentIndex: ", currentIndex)
+	fmt.Println("[DEBUG] [STATUS]     targetIndex: ", targetIndex)
+	fmt.Println("[DEBUG] [STATUS]     timestamp: ", timeutils.Now().Unix()*1000)
+	fmt.Println("[DEBUG] [STATUS] }")
 
 	syncStatus = &RosettaTypes.SyncStatus{
 		CurrentIndex: &currentIndex,
@@ -240,12 +246,6 @@ func (ec *Client) parseBeaconBlock(ctx context.Context, block *pb.ListBlocksResp
 	}
 	parentBlock := parentBlocks.BlockContainers[0]
 
-	fmt.Println("[DEBUG] Parent block Index: ", int64(parentBlock.Block.Block.Slot))
-	fmt.Println("[DEBUG] Parent block Hash: ", hex.EncodeToString(parentBlock.BlockRoot))
-
-	fmt.Println("[DEBUG] Current block Index: ", int64(b.Block.Block.Slot))
-	fmt.Println("[DEBUG] Current block Hash: ", hex.EncodeToString(b.BlockRoot))
-
 	if b.Block.Block.Slot != 0 {
 		parentBlockIdentifier = &RosettaTypes.BlockIdentifier{
 			Index: int64(parentBlock.Block.Block.Slot),
@@ -257,6 +257,15 @@ func (ec *Client) parseBeaconBlock(ctx context.Context, block *pb.ListBlocksResp
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println("[DEBUG] [BLOCK] {")
+	fmt.Println("[DEBUG] [BLOCK]     currentBlock: ", int64(b.Block.Block.Slot))
+	fmt.Println("[DEBUG] [BLOCK]     currentHash: ", hex.EncodeToString(b.BlockRoot))
+	fmt.Println("[DEBUG] [BLOCK]     parentBlock: ", int64(parentBlock.Block.Block.Slot))
+	fmt.Println("[DEBUG] [BLOCK]     parentHash: ", hex.EncodeToString(parentBlock.BlockRoot))
+	fmt.Println("[DEBUG] [BLOCK]     timestamp: ", timestamp)
+	fmt.Println("[DEBUG] [BLOCK] }")
+
 	return &RosettaTypes.Block{
 		BlockIdentifier: &RosettaTypes.BlockIdentifier{
 			Index: int64(b.Block.Block.Slot),
