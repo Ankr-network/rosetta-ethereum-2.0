@@ -89,12 +89,12 @@ func (ec *Client) Status(ctx context.Context) (
 		synced = false
 	}
 
-	fmt.Println("[DEBUG] {")
-	fmt.Println("[DEBUG]     syncStatus: ", stage)
-	fmt.Println("[DEBUG]     currentIndex: ", currentIndex)
-	fmt.Println("[DEBUG]     targetIndex: ", targetIndex)
-	fmt.Println("[DEBUG]     timestamp: ", timeutils.Now().Unix()*1000)
-	fmt.Println("[DEBUG] }")
+	fmt.Println("[DEBUG] [STATUS] {")
+	fmt.Println("[DEBUG] [STATUS]     syncStatus: ", stage)
+	fmt.Println("[DEBUG] [STATUS]     currentIndex: ", currentIndex)
+	fmt.Println("[DEBUG] [STATUS]     targetIndex: ", targetIndex)
+	fmt.Println("[DEBUG] [STATUS]     timestamp: ", timeutils.Now().Unix()*1000)
+	fmt.Println("[DEBUG] [STATUS] }")
 
 	syncStatus = &RosettaTypes.SyncStatus{
 		CurrentIndex: &currentIndex,
@@ -258,13 +258,13 @@ func (ec *Client) parseBeaconBlock(ctx context.Context, block *pb.ListBlocksResp
 		return nil, err
 	}
 
-	fmt.Println("[DEBUG] {")
-	fmt.Println("[DEBUG]     currentBlock: ", int64(b.Block.Block.Slot))
-	fmt.Println("[DEBUG]     currentHash: ", hex.EncodeToString(b.BlockRoot))
-	fmt.Println("[DEBUG]     parentBlock: ", int64(parentBlock.Block.Block.Slot))
-	fmt.Println("[DEBUG]     parentHash: ", hex.EncodeToString(parentBlock.BlockRoot))
-	fmt.Println("[DEBUG]     timestamp: ", timestamp)
-	fmt.Println("[DEBUG] }")
+	fmt.Println("[DEBUG] [BLOCK] {")
+	fmt.Println("[DEBUG] [BLOCK]     currentBlock: ", int64(b.Block.Block.Slot))
+	fmt.Println("[DEBUG] [BLOCK]     currentHash: ", hex.EncodeToString(b.BlockRoot))
+	fmt.Println("[DEBUG] [BLOCK]     parentBlock: ", int64(parentBlock.Block.Block.Slot))
+	fmt.Println("[DEBUG] [BLOCK]     parentHash: ", hex.EncodeToString(parentBlock.BlockRoot))
+	fmt.Println("[DEBUG] [BLOCK]     timestamp: ", timestamp)
+	fmt.Println("[DEBUG] [BLOCK] }")
 
 	return &RosettaTypes.Block{
 		BlockIdentifier: &RosettaTypes.BlockIdentifier{
